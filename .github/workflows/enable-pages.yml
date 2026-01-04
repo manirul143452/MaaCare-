@@ -1,0 +1,45 @@
+name: Enable GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  enable-pages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+
+    steps:
+      - name: Enable GitHub Pages via REST API
+        env:
+          GH_PAT: ${{ secrets.MaaCare }}
+          REPO: manirul143452/MaaCare-
+        run: |
+          set -euo pipefail
+          echo "Enabling Pages for $REPO from 'gh-pages' branch..."
+          # Request to set pages source
+          curl -sS -X PUT \
+            -H "Authorization: token $GH_PAT" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/$REPO/pages \
+            -d '{"source":{"branch":"gh-pages","path":"/"}}' | jq .
+
+          # Wait and verify html_url becomes available
+          for i in $(seq 1 12); do
+            echo "Checking Pages status (attempt $i)..."
+            resp=$(curl -sS -H "Authorization: token $GH_PAT" -H "Accept: application/vnd.github+json" https://api.github.com/repos/$REPO/pages)
+            html_url=$(echo "$resp" | jq -r '.html_url // empty')
+            if [ -n "$html_url" ] && [ "$html_url" != "null" ]; then
+              echo "Pages site available: $html_url"
+              echo "::set-output name=html_url::$html_url"
+              exit 0
+            fi
+            sleep 5
+          done
+
+          echo "Failed to confirm Pages site is available after waiting."
+          echo "$resp" | jq .
+          exit 1
