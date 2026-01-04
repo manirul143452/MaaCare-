@@ -1,0 +1,8 @@
+{
+  "name": "Copy of MaaCare",
+  "description": "A comprehensive maternal and child health companion offering AI-powered symptom checking, prenatal guidance, nutrition tracking, and community support.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
