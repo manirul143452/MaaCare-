@@ -60,3 +60,4 @@ A GitHub Actions workflow is included to automatically build and deploy the site
 
 ## �📄 License
 MIT License.
+<!-- pages-trigger: trigger -->
